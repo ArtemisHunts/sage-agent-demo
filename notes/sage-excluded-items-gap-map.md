@@ -5,7 +5,7 @@ Purpose: compact source-of-truth note for the analyzer entries that are intentio
 Source of truth right now:
 - local analyzer source: `demo/analyzer.html`
 - UI section: `Tracked But Excluded`
-- live site status: public GitHub Pages analyzer is still behind local source as of May 31, 2026, so use local source for the current gap read
+- live site status: public GitHub Pages analyzer returned `PASS` from `./scripts/verify-live-analyzer.sh` on May 31, 2026 at 21:48 PT, so the live UI now exposes the same tracked-but-excluded gap read
 
 ## Why This Note Exists
 
@@ -66,3 +66,22 @@ That means:
 3. After any one item is grounded, update both:
    - the data object in `demo/analyzer.html`
    - this note, so the handoff stays truthful
+
+## Extraction Checklist For Next Modeling Pass
+
+For `INK`, capture these fields before any ranked output change:
+- verified recipe component codes and quantities
+- source basis for each component quantity
+- ATLAS-denominated unit cost for each component, with timestamp/source
+- whether the `0.000035` fee is per craft, per unit, or another fee unit
+- computed total input cost and resulting `LP/ATLAS`
+- optional USD conversion only after the ATLAS denominator is grounded
+
+For `IC3A` and `IC3B`, capture these fields before ranking:
+- verified LP reward/output per contract
+- source basis for the LP output
+- confirmation that the `60h` duration applies to the same output unit
+- ATLAS price basis and whether the range is market ask, floor, or modeled cost
+- computed `LP/hour`, `LP/ATLAS`, and only then `LP/USD`
+
+If any field is missing, keep the item in `Tracked But Excluded` and update the missing-economics copy instead of inventing a denominator.
