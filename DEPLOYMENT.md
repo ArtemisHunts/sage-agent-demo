@@ -7,6 +7,8 @@ This repo contains the live site source for `https://ArtemisHunts.github.io/sage
 - This source tree contains the patched analyzer deployment candidate for the live site.
 - Latest live drift check on `2026-05-31 18:42 PT` still returned `DRIFT` for `https://artemishunts.github.io/sage-agent-demo/demo/analyzer.html`, so the public analyzer had not caught up with local source at that point.
 - Follow-up live drift checks on `2026-05-31 20:12 PT` and `2026-05-31 21:36 PT` also returned `DRIFT`, so the public analyzer was still behind before this patch was shipped.
+- Commit `9504118` shipped the analyzer transparency patch to `main` on `2026-05-31 21:36 PT`.
+- Post-push live verification passed after GitHub Pages caught up: `./scripts/verify-live-analyzer.sh` returned `PASS` for all expected LP/USD and excluded-item markers.
 - Current local branch is `main`.
 - Current git remote is the `ArtemisHunts/sage-agent-demo` GitHub repo.
 - `demo/analyzer.html` has been patched locally to:
