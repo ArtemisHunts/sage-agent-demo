@@ -50,6 +50,28 @@ The analyzer now surfaces `INK`, `IC3A`, and `IC3B` explicitly instead of silent
 - Next required input: add grounded LP reward/output data before ranking on LP efficiency
 - Why it matters: same problem as `IC3A` — the price side exists, but the output side does not
 
+## Local Search Trail
+
+Latest narrow search: May 31, 2026 heartbeat.
+
+Queries checked with QMD:
+- `INK recipe input cost LP 100000 60h`
+- `100000 LP 60h INK`
+- `INK 0.000035`
+- `Contract Quantum Nodes Starpath Cells LP`
+
+What surfaced:
+- `notes/sage-mechanics-confirmed.md` confirms only `INK: 100000 LP, 60h`.
+- `notes/sage-data-extraction.md` confirms only `INK` duration/points/fee and `IC3A` / `IC3B` ATLAS price ranges.
+- `memory/2026-05-17.md` records the earlier conclusion that the optimizer did not model these entries and that the issue was a data-coverage gap.
+
+What did not surface:
+- No grounded `INK` recipe/input basket.
+- No grounded `INK` source-cost path.
+- No grounded `IC3A` / `IC3B` LP output.
+
+Conclusion: keep all three excluded from ranked LP-efficiency output until a source outside the current indexed notes provides the missing economics.
+
 ## Safe Modeling Rule
 
 Do not move any of these entries into ranked analyzer output until the missing economics are sourced and verified.
