@@ -175,6 +175,26 @@ Interpretation:
 - `IC3A` and `IC3B` now have grounded mints and market-denominator context, but the ranking blocker remains LP output.
 - Do not infer LP from quantity, price, contract description, or marketplace presence. The contracts stay `Tracked But Excluded` until a trustworthy source states the reward/output side.
 
+Follow-up LP-output source recheck: June 1, 2026 11:59 PT heartbeat.
+
+Sources checked:
+- Web searches for `"IC3A" "LP" "Star Atlas"`, `"IC3B" "LP" "Star Atlas"`, `"Contract - Quantum Nodes" "LP"`, and `"Contract - Starpath Cells" "LP"`.
+- Mint-handle web searches for `ic3AfsMFGKjkftEkpZLLdCGHmSQX5RwH92zhXUZVNCW` and `ic3BNHDBzoW8suW4q9a9qt5PkK7D38T4raGDc1gyuRh`.
+- Exact-title web searches for `Infrastructure Contract - Quantum Nodes` and `Infrastructure Contract - Starpath Cells`.
+- Direct Star Atlas marketplace fetches for both contract mint routes.
+- QMD and workspace grep for `IC3A`, `IC3B`, `Quantum Nodes`, `Starpath Cells`, and LP-output terms.
+
+What surfaced:
+- The official Star Atlas marketplace category/search surface confirms both contract names and descriptions, but not LP output.
+- Direct marketplace mint-route fetches return the JS application shell and marketplace metadata, not reward/output data.
+- Public search surfaces the same known identity/market context already captured from MJ Informatics, Colibri, and the orderbook probe.
+- Local/QMD search surfaces only the existing extracted duration/price facts and the current excluded-item guardrails.
+
+Interpretation:
+- The 11:59 PT recheck did not find a trustworthy LP reward/output value for either contract.
+- `IC3A` and `IC3B` remain market-context-only rows. Do not infer LP output from price, remaining quantity, collection name, contract label, or marketplace presence.
+- The next useful source target is an official SAGE contract/reward export or game-client/API response that explicitly names LP output per contract.
+
 ## Recommended INK Modeling Policy
 
 - Keep `INK` excluded from the current public ranked table until the analyzer can label it as a raw-resource market-cost estimate instead of a normal craft recipe.
