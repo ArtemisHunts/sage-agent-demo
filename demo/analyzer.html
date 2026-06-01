@@ -1634,6 +1634,18 @@
             transform: translateY(-1px);
         }
 
+        .optimizer-btn-secondary {
+            background: rgba(0, 212, 170, 0.12);
+            border: 1px solid rgba(0, 212, 170, 0.32);
+            color: var(--accent);
+            margin-right: 0.75rem;
+        }
+
+        .optimizer-btn-secondary:hover {
+            background: rgba(0, 212, 170, 0.2);
+            transform: translateY(-1px);
+        }
+
         .optimizer-results {
             margin-top: 2rem;
         }
@@ -2296,7 +2308,7 @@
                             Current dataset caveat: this calculator only ranks fully modeled items. Extracted SAGE notes also include entries like INK and contract items such as IC3A / IC3B that are tracked below but excluded from rankings until their LP or cost model is grounded.
                         </div>
                         <div class="optimizer-info-box">
-                            Default ATLAS/USD reference is a round anchor at 0.00020. The extracted SAGE note examples span roughly 0.00007-0.00025, with the current average near 0.00014 and median near 0.00013. Refresh it manually if the market has moved.
+                            Default ATLAS/USD reference is a round anchor at 0.00020. Use the live refresh button for a current CoinGecko spot check, or keep the manual value if the endpoint is unavailable.
                         </div>
 
                         <div class="optimizer-form-grid">
@@ -2314,7 +2326,7 @@
                             </div>
                             <div class="optimizer-form-group">
                                 <label>ATLAS Price (USD):</label>
-                                <input type="number" class="optimizer-form-control" id="lpAtlasPrice" value="0.0002" min="0" step="0.00001">
+                                <input type="number" class="optimizer-form-control" id="lpAtlasPrice" value="0.0002" min="0" step="0.00000001">
                             </div>
                             <div class="optimizer-form-group">
                                 <label>Price Multiplier:</label>
@@ -2322,6 +2334,8 @@
                             </div>
                         </div>
 
+                        <div class="optimizer-info-box" id="lpAtlasPriceStatus">ATLAS/USD source: manual baseline. Live refresh uses CoinGecko simple price for `star-atlas` and only updates this field after a valid positive USD value is returned.</div>
+                        <button class="optimizer-btn optimizer-btn-secondary" onclick="refreshAtlasUsdPrice()">Refresh ATLAS/USD</button>
                         <button class="optimizer-btn optimizer-btn-primary" onclick="calculateLPEfficiency()">Calculate LP Efficiency</button>
                         
                         <div class="optimizer-results" id="lpResults" style="display: none;">
@@ -5431,6 +5445,46 @@
                     return (ship.mining * 0.3 + ship.cargo * 0.3 + ship.crew * 100 + ship.speed * 0.2) / ship.points;
                 default:
                     return ship.mining + ship.cargo;
+            }
+        }
+
+        const ATLAS_USD_PRICE_ENDPOINT = 'https://api.coingecko.com/api/v3/simple/price?ids=star-atlas&vs_currencies=usd';
+
+        function formatAtlasUsdPrice(price) {
+            return price.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
+        }
+
+        function setAtlasUsdStatus(message) {
+            const status = document.getElementById('lpAtlasPriceStatus');
+            if (status) status.textContent = message;
+        }
+
+        async function refreshAtlasUsdPrice() {
+            setAtlasUsdStatus('ATLAS/USD source: refreshing CoinGecko spot price...');
+
+            try {
+                const response = await fetch(ATLAS_USD_PRICE_ENDPOINT, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`CoinGecko returned ${response.status}`);
+                }
+
+                const payload = await response.json();
+                const price = Number(payload?.['star-atlas']?.usd);
+                if (!Number.isFinite(price) || price <= 0) {
+                    throw new Error('CoinGecko response did not include a valid positive USD price for ATLAS');
+                }
+
+                const priceInput = document.getElementById('lpAtlasPrice');
+                priceInput.value = formatAtlasUsdPrice(price);
+                const timestamp = new Date().toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
+                setAtlasUsdStatus(`ATLAS/USD source: CoinGecko spot check ${priceInput.value} at ${timestamp}. Ranking order still uses ATLAS-denominated cost; USD columns only convert the denominator.`);
+
+                if (document.getElementById('lpResults')?.style.display !== 'none') {
+                    calculateLPEfficiency();
+                }
+            } catch (error) {
+                console.warn('[LP Calculator] ATLAS/USD refresh failed:', error);
+                setAtlasUsdStatus(`ATLAS/USD source: live refresh failed (${error.message}). Keeping the current manual value.`);
             }
         }
 

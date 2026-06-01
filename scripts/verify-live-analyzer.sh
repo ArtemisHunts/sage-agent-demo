@@ -25,6 +25,8 @@ patterns=(
   "<th>LP/USD</th>"
   "Modeled-item scope only"
   "What unlocks ranking"
+  "Refresh ATLAS/USD"
+  "CoinGecko simple price"
 )
 
 missing=0

@@ -13,6 +13,7 @@ This repo contains the live site source for `https://ArtemisHunts.github.io/sage
 - Current git remote is the `ArtemisHunts/sage-agent-demo` GitHub repo.
 - `demo/analyzer.html` has been patched locally to:
   - separate `LP/ATLAS` from `LP/USD`
+  - add a guarded `Refresh ATLAS/USD` control backed by CoinGecko's no-key simple price endpoint for `star-atlas`
   - add dataset-scope warnings
   - track `INK`, `IC3A`, and `IC3B` as excluded entries instead of silently omitting them
   - explain exactly what data still unlocks ranking for those excluded entries
@@ -56,6 +57,7 @@ This repo contains the live site source for `https://ArtemisHunts.github.io/sage
 
 - Inline script in `demo/analyzer.html` compiles cleanly via `node` syntax check.
 - New LP strings and excluded-item markers are present in source.
+- The LP calculator now has a live ATLAS/USD refresh path that validates a positive CoinGecko spot price before updating the manual price field.
 - The excluded-items UI now also includes a plain-language `What unlocks ranking` explainer for `INK`, `IC3A`, and `IC3B`.
 - The excluded-items table now also includes `Source Basis` so users can see which note grounds each currently known fact set.
 - As of the May 31, 2026 5:59 PM PT heartbeat, a fresh live probe still returned none of the expected analyzer markers (`Tracked But Excluded`, `LP/USD`, `Code`, `Why Excluded`, `Known Data`, `Source Basis`, `Missing Economics`, `Next Required Input`, `Modeled-item scope only`, `What unlocks ranking`), so the public GitHub Pages analyzer was still behind local source at that point.
@@ -110,6 +112,8 @@ If you need to point the probe at a different URL:
 On the analyzer page, confirm the LP tab shows:
 
 - `LP per hour, LP per ATLAS, and LP per USD`
+- `Refresh ATLAS/USD`
+- `CoinGecko simple price`
 - `Current dataset caveat`
 - `Modeled-item scope only`
 - `What unlocks ranking`
@@ -125,7 +129,8 @@ On the analyzer page, confirm the LP tab shows:
 
 ## Remaining Product Work
 
-- Better default USD assumptions for the LP calculator
+- Deploy and live-verify the ATLAS/USD refresh control after the next push.
+- Add a fallback/source timestamp cache if CoinGecko rate limiting becomes noisy.
 - Ground the excluded-item gaps if `INK`, `IC3A`, and `IC3B` should become rankable:
   - `INK`: LP/duration/fee are extracted, but the recipe/input-cost path is not yet modeled, so `LP/ATLAS` and `LP/USD` are not grounded.
   - `IC3A` / `IC3B`: duration and ATLAS price ranges are extracted, but LP output is not grounded in the current notes, so LP-efficiency ranking is still invalid.
