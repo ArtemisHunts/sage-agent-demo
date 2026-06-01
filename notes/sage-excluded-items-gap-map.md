@@ -139,6 +139,7 @@ Sources checked:
 - `@staratlas/factory@0.7.1` package metadata and type/source files from npm, without adding it to this repo.
 - Solana RPC `getProgramAccounts` against Galactic Marketplace program `traderDnaR5w6Tcoi3NFm53i48FTDNbGjBSZwWXDRrg`.
 - Factory-confirmed account filters: `dataSize: 201`, currency mint memcmp at offset `40`, asset mint memcmp at offset `72`.
+- Reusable repo-local probe: `scripts/query-ink-orderbook.js`.
 
 What surfaced:
 - `@staratlas/factory` is not installed in this workspace, but the published package confirms the open-order account filter offsets.
@@ -147,6 +148,7 @@ What surfaced:
 - The INK/ATLAS query returned `34` open orders.
 - Best ask snapshot: `14.75 ATLAS`, `192` remaining, order `HcWeAA8ZDLffTCnKPMJfFHfJUfQsaNpaqrPtPyjBUPng`.
 - Best bid snapshot: `11.99 ATLAS`, `100` remaining, order `2BmwwmK1VpTqrPdkegYihkLY732tAWJPHbzVXkpq4WzA`.
+- Re-running the dependency-free repo-local probe at June 1 10:36 PT returned the same best ask / best bid / order count.
 
 Interpretation:
 - The first sourced market-acquisition denominator for `INK` is now `14.75 ATLAS` best ask at the 09:43 PT snapshot.
