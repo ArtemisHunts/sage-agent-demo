@@ -128,6 +128,10 @@ On the analyzer page, confirm the LP tab shows:
 - `sageAnalyzerAtlasUsdPrice`
 - `Current dataset caveat`
 - `Modeled-item scope only`
+- `Market-Cost Estimates (Non-Ranked)`
+- `LP/ATLAS (Best Ask)`
+- `Fee unit unresolved`
+- `Non-ranked lane only`
 - `What unlocks ranking`
 - `<h3>Tracked But Excluded</h3>`
 - `<th>Code</th>`
@@ -147,6 +151,7 @@ On the analyzer page, confirm the LP tab shows:
 - Compact source-of-truth note for those gaps: `notes/sage-excluded-items-gap-map.md`
 - The analyzer now exposes those gaps more explicitly in the UI under `Tracked But Excluded` with `Code`, `Why Excluded`, `Known Data`, `Source Basis`, `Missing Economics`, and `Next Required Input` columns, so post-deploy verification should confirm those exact table-header markers are visible too.
 - It also now states the exact unlock condition in plain language: `INK` needs a fresh best-ask market-cost estimate lane, while `IC3A` / `IC3B` need grounded LP output before ranking becomes valid.
+- `INK` now appears in a separate non-ranked `Market-Cost Estimates` lane that uses the best-ask snapshot for conservative acquisition-cost context while keeping recipe-cost rankings clean.
 - Re-run pixel-level live browser verification if visual spacing or responsive rendering becomes a concern
 - Keep the quick probe portable; use `grep`, not `rg`, unless the target environment is known to have ripgrep installed
 - Keep fetch failure distinct from analyzer marker drift so network/404 problems do not look like a stale deployment.

@@ -3356,6 +3356,19 @@
             }
         };
 
+        const MARKET_COST_ESTIMATES = {
+            "INK": {
+                resourceCode: "INK",
+                basis: "Best-ask market-cost estimate",
+                bestAskAtlas: 14.75,
+                bestBidAtlas: 11.99,
+                snapshotTime: "Jun 1 09:43 PT",
+                sourceBasis: "Galactic Marketplace INK/ATLAS orderbook via scripts/query-atlas-orderbook.js",
+                feePolicy: "Fee unit unresolved; the extracted 0.000035 fee is not included in this denominator.",
+                rankingPolicy: "Non-ranked lane only. Do not mix with recipe-cost rankings."
+            }
+        };
+
         // Global optimizer state
         let selectedOptimizerShips = {};
         let selectedFleetObjective = 'mining';
@@ -5593,6 +5606,37 @@
             
             // Sort by efficiency
             lpEfficiencies.sort((a, b) => b.efficiency - a.efficiency);
+
+            const marketCostEstimates = Object.entries(MARKET_COST_ESTIMATES)
+                .map(([code, estimate]) => {
+                    const resource = SAGE_RESOURCES[estimate.resourceCode || code];
+                    if (!resource || !resource.points || !resource.duration) return null;
+
+                    const midpointAtlas = (estimate.bestAskAtlas + estimate.bestBidAtlas) / 2;
+                    const lpPerHour = resource.points / resource.duration;
+                    const lpPerBestAskAtlas = resource.points / estimate.bestAskAtlas;
+                    const lpPerBestAskUsd = resource.points / (estimate.bestAskAtlas * atlasPrice);
+
+                    return {
+                        code,
+                        name: resource.name,
+                        basis: estimate.basis,
+                        points: resource.points,
+                        duration: resource.duration,
+                        bestAskAtlas: estimate.bestAskAtlas.toFixed(2),
+                        bestBidAtlas: estimate.bestBidAtlas.toFixed(2),
+                        midpointAtlas: midpointAtlas.toFixed(2),
+                        bestAskUsd: (estimate.bestAskAtlas * atlasPrice).toFixed(4),
+                        lpPerHour: lpPerHour.toFixed(2),
+                        lpPerBestAskAtlas: lpPerBestAskAtlas.toFixed(0),
+                        lpPerBestAskUsd: lpPerBestAskUsd.toFixed(0),
+                        snapshotTime: estimate.snapshotTime,
+                        sourceBasis: estimate.sourceBasis,
+                        feePolicy: estimate.feePolicy,
+                        rankingPolicy: estimate.rankingPolicy
+                    };
+                })
+                .filter(Boolean);
             
             let html = `
                 <h3>LP Efficiency Rankings</h3>
@@ -5633,6 +5677,54 @@
             });
             
             html += '</tbody></table>';
+
+            if (marketCostEstimates.length > 0) {
+                html += `
+                    <h3>Market-Cost Estimates (Non-Ranked)</h3>
+                    <div class="optimizer-info-box">These rows use sourced market snapshots as acquisition-cost context. They are intentionally separated from recipe-cost rankings because the denominator type is different.</div>
+                    <div class="optimizer-info-box">INK estimate policy: best ask is the conservative default; bid and midpoint are sensitivity context only; the unresolved fee unit is not included.</div>
+                    <table class="optimizer-table">
+                        <thead>
+                            <tr>
+                                <th>Entry</th>
+                                <th>Code</th>
+                                <th>Basis</th>
+                                <th>LP Points</th>
+                                <th>Duration (h)</th>
+                                <th>Best Ask (ATLAS)</th>
+                                <th>Best Bid (ATLAS)</th>
+                                <th>Midpoint Context</th>
+                                <th>Best Ask (USD)</th>
+                                <th>LP/Hour</th>
+                                <th>LP/ATLAS (Best Ask)</th>
+                                <th>LP/USD (Best Ask)</th>
+                                <th>Snapshot</th>
+                                <th>Guardrail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${marketCostEstimates.map(item => `
+                                <tr>
+                                    <td>${item.name}</td>
+                                    <td><code>${item.code}</code></td>
+                                    <td>${item.basis}</td>
+                                    <td>${item.points}</td>
+                                    <td>${item.duration}</td>
+                                    <td>${item.bestAskAtlas}</td>
+                                    <td>${item.bestBidAtlas}</td>
+                                    <td>${item.midpointAtlas} ATLAS</td>
+                                    <td>$${item.bestAskUsd}</td>
+                                    <td>${item.lpPerHour}</td>
+                                    <td>${item.lpPerBestAskAtlas}</td>
+                                    <td>${item.lpPerBestAskUsd}</td>
+                                    <td>${item.snapshotTime}<br><code>${item.sourceBasis}</code></td>
+                                    <td>${item.rankingPolicy}<br>${item.feePolicy}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
 
             if (excludedItems.length > 0) {
                 html += `
