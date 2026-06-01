@@ -23,14 +23,24 @@ The analyzer now surfaces `INK`, `IC3A`, and `IC3B` explicitly instead of silent
 - Entry: `Ink`
 - Known data: `100000 LP`, `60h`, fee `0.000035`
 - Marketplace slug / mint handle: `inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh`
+- On-chain INK/ATLAS orderbook snapshot, June 1 09:43 PT:
+  - ATLAS token decimals: `8`
+  - open order count: `34`
+  - best ask: `14.75 ATLAS` for `192` remaining INK, order `HcWeAA8ZDLffTCnKPMJfFHfJUfQsaNpaqrPtPyjBUPng`
+  - best bid: `11.99 ATLAS` for `100` remaining INK, order `2BmwwmK1VpTqrPdkegYihkLY732tAWJPHbzVXkpq4WzA`
 - Source basis: `sage-mechanics-confirmed.md` + `sage-data-extraction.md` + SAGE Editor Suite C4 exports:
   - `https://ses.staratlas.com/SAGE%20Editor%20Suite/C4%20Tools/data/resources.json`
   - `https://ses.staratlas.com/SAGE%20Editor%20Suite/C4%20Tools/data/recipes.json`
   - `https://play.staratlas.com/market/inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh/`
-- Why excluded: LP and duration are extracted, but the source-cost denominator is not yet modeled
-- Missing economics: grounded raw-resource acquisition/opportunity cost
-- Next required input: decide whether raw/no-ingredient C4 resources should be ranked via market acquisition cost, production opportunity cost, or kept excluded
-- Why it matters: until the recipe basket is grounded, any `LP/ATLAS` or `LP/USD` result would look precise while still being fake
+  - Solana mainnet Galactic Marketplace query:
+    - program: `traderDnaR5w6Tcoi3NFm53i48FTDNbGjBSZwWXDRrg`
+    - currency mint: `ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx`
+    - asset mint: `inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh`
+    - successful RPC: `https://api.mainnet-beta.solana.com`
+- Why excluded: LP, duration, and a first market denominator are grounded, but the analyzer still needs an explicit raw-resource ranking policy plus fee-unit reconciliation
+- Missing economics: policy decision for best-ask acquisition cost vs midpoint opportunity cost vs production opportunity cost, plus confirmation of what the `0.000035` fee applies to
+- Next required input: choose the raw/no-ingredient resource policy before moving `INK` into ranked LP-efficiency output
+- Why it matters: the orderbook now gives a denominator, but ranking would still be misleading if the policy and fee unit are implicit
 
 ### IC3A
 
@@ -123,6 +133,26 @@ Interpretation:
 - The next non-UI path should query Galactic Marketplace open orders for mint `inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh` in ATLAS and use best ask / best bid / midpoint as a timestamped acquisition-cost denominator.
 - Do not use the marketplace page title alone as price evidence; it only grounds identity/mint routing.
 
+Follow-up on-chain orderbook pass: June 1, 2026 09:43 PT heartbeat.
+
+Sources checked:
+- `@staratlas/factory@0.7.1` package metadata and type/source files from npm, without adding it to this repo.
+- Solana RPC `getProgramAccounts` against Galactic Marketplace program `traderDnaR5w6Tcoi3NFm53i48FTDNbGjBSZwWXDRrg`.
+- Factory-confirmed account filters: `dataSize: 201`, currency mint memcmp at offset `40`, asset mint memcmp at offset `72`.
+
+What surfaced:
+- `@staratlas/factory` is not installed in this workspace, but the published package confirms the open-order account filter offsets.
+- Publicnode RPC failed with `fetch failed`; `https://api.mainnet-beta.solana.com` succeeded.
+- ATLAS token supply reports `8` decimals.
+- The INK/ATLAS query returned `34` open orders.
+- Best ask snapshot: `14.75 ATLAS`, `192` remaining, order `HcWeAA8ZDLffTCnKPMJfFHfJUfQsaNpaqrPtPyjBUPng`.
+- Best bid snapshot: `11.99 ATLAS`, `100` remaining, order `2BmwwmK1VpTqrPdkegYihkLY732tAWJPHbzVXkpq4WzA`.
+
+Interpretation:
+- The first sourced market-acquisition denominator for `INK` is now `14.75 ATLAS` best ask at the 09:43 PT snapshot.
+- Derived bounds before fee reconciliation: `100000 LP / 60h = 1666.67 LP/hour`; best-ask efficiency would be about `6779.66 LP/ATLAS`; midpoint of best bid/ask (`13.37 ATLAS`) would be about `7479.43 LP/ATLAS`.
+- Do not move `INK` into ranked analyzer output yet. The remaining blocker is the modeling policy and fee-unit confirmation, not discovery of the orderbook source.
+
 ## Safe Modeling Rule
 
 Do not move any of these entries into ranked analyzer output until the missing economics are sourced and verified.
@@ -144,7 +174,7 @@ That means:
 
 For `INK`, capture these fields before any ranked output change:
 - source-cost policy for a raw/no-ingredient C4 resource
-- ATLAS-denominated acquisition or opportunity cost for `Ink`, with timestamp/source; first candidate is Galactic Marketplace open orders for mint `inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh`
+- ATLAS-denominated acquisition or opportunity cost for `Ink`; first snapshot captured June 1 09:43 PT from Galactic Marketplace open orders with best ask `14.75 ATLAS`, best bid `11.99 ATLAS`, and midpoint `13.37 ATLAS`
 - whether the `0.000035` fee is per craft, per unit, or another fee unit
 - computed total input cost and resulting `LP/ATLAS`
 - optional USD conversion only after the ATLAS denominator is grounded
