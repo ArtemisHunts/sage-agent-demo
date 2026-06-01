@@ -27,6 +27,8 @@ patterns=(
   "What unlocks ranking"
   "Refresh ATLAS/USD"
   "CoinGecko simple price"
+  "Cached fallback"
+  "sageAnalyzerAtlasUsdPrice"
 )
 
 missing=0

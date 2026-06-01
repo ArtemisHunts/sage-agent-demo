@@ -2334,7 +2334,7 @@
                             </div>
                         </div>
 
-                        <div class="optimizer-info-box" id="lpAtlasPriceStatus">ATLAS/USD source: manual baseline. Live refresh uses CoinGecko simple price for `star-atlas` and only updates this field after a valid positive USD value is returned.</div>
+                        <div class="optimizer-info-box" id="lpAtlasPriceStatus">ATLAS/USD source: manual baseline. Live refresh uses CoinGecko simple price for `star-atlas`, caches the last valid value locally, and only updates this field after a valid positive USD value is returned. Cached fallback is used when live refresh fails.</div>
                         <button class="optimizer-btn optimizer-btn-secondary" onclick="refreshAtlasUsdPrice()">Refresh ATLAS/USD</button>
                         <button class="optimizer-btn optimizer-btn-primary" onclick="calculateLPEfficiency()">Calculate LP Efficiency</button>
                         
@@ -3426,6 +3426,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             setupScrollReveal();
             await loadGalaxyData();
+            initializeAtlasUsdPriceCache();
             updateAnalysis();
             setupWalletInput();
             setupWalletListeners();
@@ -5449,14 +5450,55 @@
         }
 
         const ATLAS_USD_PRICE_ENDPOINT = 'https://api.coingecko.com/api/v3/simple/price?ids=star-atlas&vs_currencies=usd';
+        const ATLAS_USD_PRICE_CACHE_KEY = 'sageAnalyzerAtlasUsdPrice';
 
         function formatAtlasUsdPrice(price) {
             return price.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
         }
 
+        function formatAtlasUsdTimestamp(timestamp) {
+            return new Date(timestamp).toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
+        }
+
         function setAtlasUsdStatus(message) {
             const status = document.getElementById('lpAtlasPriceStatus');
             if (status) status.textContent = message;
+        }
+
+        function readCachedAtlasUsdPrice() {
+            try {
+                const cached = JSON.parse(localStorage.getItem(ATLAS_USD_PRICE_CACHE_KEY) || 'null');
+                const price = Number(cached?.price);
+                const timestamp = Number(cached?.timestamp);
+                if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(timestamp) || timestamp <= 0) {
+                    return null;
+                }
+                return { price, timestamp };
+            } catch (error) {
+                console.warn('[LP Calculator] ATLAS/USD cache read failed:', error);
+                return null;
+            }
+        }
+
+        function writeCachedAtlasUsdPrice(price, timestamp) {
+            try {
+                localStorage.setItem(ATLAS_USD_PRICE_CACHE_KEY, JSON.stringify({ price, timestamp }));
+            } catch (error) {
+                console.warn('[LP Calculator] ATLAS/USD cache write failed:', error);
+            }
+        }
+
+        function applyAtlasUsdPrice(price, sourceLabel, timestamp) {
+            const priceInput = document.getElementById('lpAtlasPrice');
+            priceInput.value = formatAtlasUsdPrice(price);
+            setAtlasUsdStatus(`ATLAS/USD source: ${sourceLabel} ${priceInput.value} at ${formatAtlasUsdTimestamp(timestamp)}. Ranking order still uses ATLAS-denominated cost; USD columns only convert the denominator.`);
+        }
+
+        function initializeAtlasUsdPriceCache() {
+            const cached = readCachedAtlasUsdPrice();
+            if (!cached) return;
+
+            applyAtlasUsdPrice(cached.price, 'cached fallback', cached.timestamp);
         }
 
         async function refreshAtlasUsdPrice() {
@@ -5474,17 +5516,25 @@
                     throw new Error('CoinGecko response did not include a valid positive USD price for ATLAS');
                 }
 
-                const priceInput = document.getElementById('lpAtlasPrice');
-                priceInput.value = formatAtlasUsdPrice(price);
-                const timestamp = new Date().toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
-                setAtlasUsdStatus(`ATLAS/USD source: CoinGecko spot check ${priceInput.value} at ${timestamp}. Ranking order still uses ATLAS-denominated cost; USD columns only convert the denominator.`);
+                const timestamp = Date.now();
+                writeCachedAtlasUsdPrice(price, timestamp);
+                applyAtlasUsdPrice(price, 'CoinGecko spot check', timestamp);
 
                 if (document.getElementById('lpResults')?.style.display !== 'none') {
                     calculateLPEfficiency();
                 }
             } catch (error) {
                 console.warn('[LP Calculator] ATLAS/USD refresh failed:', error);
-                setAtlasUsdStatus(`ATLAS/USD source: live refresh failed (${error.message}). Keeping the current manual value.`);
+                const cached = readCachedAtlasUsdPrice();
+                if (cached) {
+                    applyAtlasUsdPrice(cached.price, 'cached fallback after live refresh failed', cached.timestamp);
+                    if (document.getElementById('lpResults')?.style.display !== 'none') {
+                        calculateLPEfficiency();
+                    }
+                    return;
+                }
+
+                setAtlasUsdStatus(`ATLAS/USD source: live refresh failed (${error.message}) and no cached fallback exists. Keeping the current manual value.`);
             }
         }
 
