@@ -9,6 +9,8 @@ This repo contains the live site source for `https://ArtemisHunts.github.io/sage
 - Commit `9504118` shipped the analyzer transparency patch to `main` on `2026-05-31 21:36 PT`.
 - Follow-up commit `7ca9fa7` recorded the live analyzer verifier and deployment handoff updates.
 - Post-push live verification passed after GitHub Pages caught up: `./scripts/verify-live-analyzer.sh` returned `PASS` for all expected LP/USD and excluded-item markers on `2026-05-31 21:48 PT`.
+- Commits `8b462bf` and `ceb9c0b` added the guarded ATLAS/USD refresh control and fixed the analyzer verifier so `DRIFT` exits non-zero.
+- Post-push live verification passed again after GitHub Pages caught up: `./scripts/verify-live-analyzer.sh` returned `PASS` with `Refresh ATLAS/USD` and `CoinGecko simple price` markers on `2026-06-01 05:12 PT`.
 - Current local branch is `main`.
 - Current git remote is the `ArtemisHunts/sage-agent-demo` GitHub repo.
 - `demo/analyzer.html` has been patched locally to:
@@ -64,6 +66,7 @@ This repo contains the live site source for `https://ArtemisHunts.github.io/sage
 - As of the May 31, 2026 6:42 PM PT heartbeat, a follow-up live probe still returned `DRIFT`, confirming the public GitHub Pages analyzer remained behind local source after the earlier handoff note.
 - As of the May 31, 2026 8:12 PM PT heartbeat, the shared repo verifier still printed every expected marker as `MISSING` and ended on `DRIFT`, so the public GitHub Pages analyzer was still behind local source before the patch was shipped.
 - As of the May 31, 2026 9:48 PM PT heartbeat, the shared repo verifier returned `PASS` against the live GitHub Pages analyzer; all expected LP/USD and excluded-item markers are now present.
+- As of the June 1, 2026 5:12 AM PT heartbeat, the shared repo verifier returned `PASS` against the live GitHub Pages analyzer with the ATLAS/USD refresh markers included, and `DRIFT` now exits non-zero.
 
 ## What Was Not Verified
 
@@ -102,6 +105,7 @@ Interpretation:
 - `DRIFT` means the live page is still serving the older analyzer and no deploy has landed yet; the verifier exits non-zero on this state.
 - `FETCH_ERROR` means the probe could not fetch the target URL and should be treated as infrastructure/network failure, not product drift.
 - As of `2026-05-31 21:48 PT`, this probe returned `PASS` against `https://ArtemisHunts.github.io/sage-agent-demo/demo/analyzer.html`.
+- As of `2026-06-01 05:12 PT`, this probe returned `PASS` against the same live URL with the ATLAS/USD refresh markers included.
 
 If you need to point the probe at a different URL:
 
@@ -129,7 +133,6 @@ On the analyzer page, confirm the LP tab shows:
 
 ## Remaining Product Work
 
-- Deploy and live-verify the ATLAS/USD refresh control after the next push.
 - Add a fallback/source timestamp cache if CoinGecko rate limiting becomes noisy.
 - Ground the excluded-item gaps if `INK`, `IC3A`, and `IC3B` should become rankable:
   - `INK`: LP/duration/fee are extracted, but the recipe/input-cost path is not yet modeled, so `LP/ATLAS` and `LP/USD` are not grounded.
