@@ -17,9 +17,32 @@ done
 
 if [ "${LIVE_ORDERBOOK:-0}" = "1" ]; then
   read -r -a rpc_endpoints <<< "${ORDERBOOK_RPC_ENDPOINTS:-}"
+  live_attempts="${LIVE_ORDERBOOK_ATTEMPTS:-3}"
+
+  if ! [[ "$live_attempts" =~ ^[1-9][0-9]*$ ]]; then
+    echo "DRIFT: LIVE_ORDERBOOK_ATTEMPTS must be a positive integer" >&2
+    exit 1
+  fi
 
   for asset in INK IC3A IC3B; do
-    if ! output="$(node scripts/query-atlas-orderbook.js "$asset" "${rpc_endpoints[@]}" 2>&1)"; then
+    output=""
+    attempt=1
+    success=0
+    while [ "$attempt" -le "$live_attempts" ]; do
+      if output="$(node scripts/query-atlas-orderbook.js "$asset" "${rpc_endpoints[@]}" 2>&1)"; then
+        success=1
+        break
+      fi
+
+      if [ "$attempt" -eq "$live_attempts" ]; then
+        break
+      fi
+
+      sleep "$((attempt * 2))"
+      attempt="$((attempt + 1))"
+    done
+
+    if [ "$success" -ne 1 ]; then
       echo "DRIFT: live orderbook probe failed for $asset" >&2
       printf '%s\n' "$output" >&2
       exit 1

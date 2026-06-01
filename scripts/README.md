@@ -61,6 +61,12 @@ LIVE_ORDERBOOK=1 ./scripts/verify-orderbook-probes.sh
 
 Use the live mode only when you need a fresh source snapshot and can tolerate public-RPC rate limits. The live verifier prints one `LIVE OK` summary per asset when RPC access succeeds, and labels the exact asset that failed when an endpoint rate-limits or drops.
 
+Live mode retries each asset up to three times by default before declaring drift. Override the bounded retry count when public RPCs are especially noisy:
+
+```bash
+LIVE_ORDERBOOK=1 LIVE_ORDERBOOK_ATTEMPTS=5 ./scripts/verify-orderbook-probes.sh
+```
+
 You can pass one or more explicit RPC endpoints to the live verifier:
 
 ```bash
