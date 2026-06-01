@@ -59,7 +59,13 @@ To also run live RPC smoke checks for `INK`, `IC3A`, and `IC3B`:
 LIVE_ORDERBOOK=1 ./scripts/verify-orderbook-probes.sh
 ```
 
-Use the live mode only when you need a fresh source snapshot and can tolerate public-RPC rate limits.
+Use the live mode only when you need a fresh source snapshot and can tolerate public-RPC rate limits. The live verifier prints one `LIVE OK` summary per asset when RPC access succeeds, and labels the exact asset that failed when an endpoint rate-limits or drops.
+
+You can pass one or more explicit RPC endpoints to the live verifier:
+
+```bash
+LIVE_ORDERBOOK=1 ORDERBOOK_RPC_ENDPOINTS="https://api.mainnet-beta.solana.com" ./scripts/verify-orderbook-probes.sh
+```
 
 ## Modeling Guardrail
 

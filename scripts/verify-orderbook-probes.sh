@@ -16,8 +16,15 @@ for marker in "Usage:" "INK" "IC3A" "IC3B" "Default asset: INK"; do
 done
 
 if [ "${LIVE_ORDERBOOK:-0}" = "1" ]; then
+  read -r -a rpc_endpoints <<< "${ORDERBOOK_RPC_ENDPOINTS:-}"
+
   for asset in INK IC3A IC3B; do
-    output="$(node scripts/query-atlas-orderbook.js "$asset")"
+    if ! output="$(node scripts/query-atlas-orderbook.js "$asset" "${rpc_endpoints[@]}" 2>&1)"; then
+      echo "DRIFT: live orderbook probe failed for $asset" >&2
+      printf '%s\n' "$output" >&2
+      exit 1
+    fi
+
     node -e '
       const payload = JSON.parse(process.argv[1]);
       if (payload.assetCode !== process.argv[2]) {
@@ -29,6 +36,9 @@ if [ "${LIVE_ORDERBOOK:-0}" = "1" ]; then
       if (!payload.currencyMint || payload.currencyDecimals !== 8) {
         throw new Error("ATLAS currency metadata missing");
       }
+      const bestAsk = payload.bestAsk ? `${payload.bestAsk.priceAtlas} ATLAS` : "none";
+      const bestBid = payload.bestBid ? `${payload.bestBid.priceAtlas} ATLAS` : "none";
+      console.log(`LIVE OK: ${payload.assetCode} orders=${payload.openOrderCount} bestAsk=${bestAsk} bestBid=${bestBid}`);
     ' "$output" "$asset"
   done
 fi
