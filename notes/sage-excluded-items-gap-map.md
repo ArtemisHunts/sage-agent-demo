@@ -46,9 +46,9 @@ The analyzer now surfaces `INK`, `IC3A`, and `IC3B` explicitly instead of silent
 
 - Code: `IC3A`
 - Entry: `Contract - Quantum Nodes`
-- Known data: `60h`, ATLAS price range `1.8-2.2`
-- Source basis: `sage-data-extraction.md`
-- Why excluded: market price and duration are extracted, but LP output is not grounded in the current notes
+- Known data: `60h`, ATLAS price range `1.8-2.2`, mint `ic3AfsMFGKjkftEkpZLLdCGHmSQX5RwH92zhXUZVNCW`, June 1 10:44 PT orderbook had `1` open order, no ask, and best bid `1 ATLAS` for `998` remaining
+- Source basis: `sage-data-extraction.md` + Colibri catalog JSON + Galactic Marketplace orderbook query
+- Why excluded: market identity/price context and duration are extracted, but LP output is not grounded in the current notes or external source pass
 - Missing economics: verified LP output
 - Next required input: add grounded LP reward/output data before ranking on LP efficiency
 - Why it matters: without verified LP output, duration + price alone cannot support `LP/hour`, `LP/ATLAS`, or `LP/USD`
@@ -57,9 +57,9 @@ The analyzer now surfaces `INK`, `IC3A`, and `IC3B` explicitly instead of silent
 
 - Code: `IC3B`
 - Entry: `Contract - Starpath Cells`
-- Known data: `60h`, ATLAS price range `1.3-1.7`
-- Source basis: `sage-data-extraction.md`
-- Why excluded: market price and duration are extracted, but LP output is not grounded in the current notes
+- Known data: `60h`, ATLAS price range `1.3-1.7`, mint `ic3BNHDBzoW8suW4q9a9qt5PkK7D38T4raGDc1gyuRh`, June 1 10:44 PT orderbook had `7` open orders, best ask `2.2 ATLAS` for `100` remaining, and best bid `1.8 ATLAS` for `70` remaining
+- Source basis: `sage-data-extraction.md` + Colibri catalog JSON + MJ Informatics Resource Depot + Star Atlas marketplace route + Galactic Marketplace orderbook query
+- Why excluded: market identity/price context and duration are extracted, but LP output is not grounded in the current notes or external source pass
 - Missing economics: verified LP output
 - Next required input: add grounded LP reward/output data before ranking on LP efficiency
 - Why it matters: same problem as `IC3A` — the price side exists, but the output side does not
@@ -154,6 +154,26 @@ Interpretation:
 - The first sourced market-acquisition denominator for `INK` is now `14.75 ATLAS` best ask at the 09:43 PT snapshot.
 - Derived bounds before fee reconciliation: `100000 LP / 60h = 1666.67 LP/hour`; best-ask efficiency would be about `6779.66 LP/ATLAS`; midpoint of best bid/ask (`13.37 ATLAS`) would be about `7479.43 LP/ATLAS`.
 - Do not move `INK` into ranked analyzer output yet. The remaining blocker is the modeling policy and fee-unit confirmation, not discovery of the orderbook source.
+
+Follow-up contract marketplace pass: June 1, 2026 10:44 PT heartbeat.
+
+Sources checked:
+- Colibri catalog JSON: `https://colibriespacial.es/json`
+- MJ Informatics Star Atlas Resource Depot: `https://mjinformatics.com/star-atlas/resource-depot`
+- Official Star Atlas marketplace route for IC3B: `https://play.staratlas.com/market/ic3BNHDBzoW8suW4q9a9qt5PkK7D38T4raGDc1gyuRh/`
+- Generalized repo probe: `scripts/query-atlas-orderbook.js`
+
+What surfaced:
+- Colibri catalog JSON identifies `IC3A` / `Contract - Quantum Nodes` with mint `ic3AfsMFGKjkftEkpZLLdCGHmSQX5RwH92zhXUZVNCW`, collection `Infrastructure Contract - Quantum Nodes`, exclusive currency `ATLAS`, and no embedded markets or LP output.
+- Colibri catalog JSON identifies `IC3B` / `Contract - Starpath Cells` with mint `ic3BNHDBzoW8suW4q9a9qt5PkK7D38T4raGDc1gyuRh`, collection `Infrastructure Contract - Starpath Cells`, exclusive currency `ATLAS`, and no embedded markets or LP output.
+- MJ Informatics currently shows IC3B with `100` remaining and `2.20 ATLAS`, matching the on-chain best ask.
+- The official IC3B marketplace route loads but only exposes the JS loading shell through direct fetch, not LP output.
+- On-chain IC3A/ATLAS orderbook snapshot: `1` open order, no ask, best bid `1 ATLAS` for `998` remaining.
+- On-chain IC3B/ATLAS orderbook snapshot: `7` open orders, best ask `2.2 ATLAS` for `100` remaining, best bid `1.8 ATLAS` for `70` remaining.
+
+Interpretation:
+- `IC3A` and `IC3B` now have grounded mints and market-denominator context, but the ranking blocker remains LP output.
+- Do not infer LP from quantity, price, contract description, or marketplace presence. The contracts stay `Tracked But Excluded` until a trustworthy source states the reward/output side.
 
 ## Recommended INK Modeling Policy
 
