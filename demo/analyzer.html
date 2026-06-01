@@ -3324,11 +3324,11 @@
                 points: 100000,
                 fee: 0.000035,
                 excludeFromRanking: true,
-                exclusionReason: "LP and duration are extracted, but the recipe input cost path is not yet modeled.",
-                knownData: "100000 LP · 60h · fee 0.000035",
-                sourceBasis: "sage-mechanics-confirmed.md + sage-data-extraction.md",
-                missingModel: "Grounded recipe inputs and source costs",
-                unblockRequirement: "Add the verified input recipe plus ATLAS-denominated cost model."
+                exclusionReason: "LP, duration, and a marketplace denominator are now sourced, but INK is a raw-resource market-cost estimate and must not be mixed into recipe-cost rankings yet.",
+                knownData: "100000 LP · 60h · fee 0.000035 · best-ask snapshot 14.75 ATLAS (Jun 1 09:43 PT)",
+                sourceBasis: "sage-mechanics-confirmed.md + sage-data-extraction.md + sage-excluded-items-gap-map.md",
+                missingModel: "Market-cost estimate labeling, fresh best-ask refresh path, and fee-unit confirmation",
+                unblockRequirement: "Add a market-cost estimate lane that uses a fresh best ask as the conservative denominator and keeps bid/midpoint as sensitivity context."
             },
 
             // Contracts tracked from extracted notes, but not yet rankable
@@ -5638,7 +5638,7 @@
                 html += `
                     <h3>Tracked But Excluded</h3>
                     <div class="optimizer-info-box">These entries are tracked from extracted SAGE notes, but the calculator leaves them out of rankings until the missing economics are verified.</div>
-                    <div class="optimizer-info-box">What unlocks ranking: <strong>INK</strong> still needs a grounded recipe/input basket plus source costs. <strong>IC3A</strong> and <strong>IC3B</strong> still need grounded LP output before LP/hour, LP/ATLAS, or LP/USD can be treated as real.</div>
+                    <div class="optimizer-info-box">What unlocks ranking: <strong>INK</strong> needs a dedicated market-cost estimate lane with a fresh best-ask denominator; it should not be blended into recipe-cost rankings. <strong>IC3A</strong> and <strong>IC3B</strong> still need grounded LP output before LP/hour, LP/ATLAS, or LP/USD can be treated as real.</div>
                     <table class="optimizer-table">
                         <thead>
                             <tr>

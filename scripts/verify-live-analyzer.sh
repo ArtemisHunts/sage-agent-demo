@@ -25,6 +25,8 @@ patterns=(
   "<th>LP/USD</th>"
   "Modeled-item scope only"
   "What unlocks ranking"
+  "best-ask snapshot 14.75 ATLAS"
+  "market-cost estimate lane"
   "Refresh ATLAS/USD"
   "CoinGecko simple price"
   "Cached fallback"
