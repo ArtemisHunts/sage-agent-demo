@@ -4,11 +4,11 @@ This repo contains the live site source for `https://ArtemisHunts.github.io/sage
 
 ## Current State
 
-- This source tree contains the patched analyzer deployment candidate for the live site.
-- Latest live drift check on `2026-05-31 18:42 PT` still returned `DRIFT` for `https://artemishunts.github.io/sage-agent-demo/demo/analyzer.html`, so the public analyzer had not caught up with local source at that point.
-- Follow-up live drift checks on `2026-05-31 20:12 PT` and `2026-05-31 21:36 PT` also returned `DRIFT`, so the public analyzer was still behind before this patch was shipped.
+- This source tree contains the patched analyzer now deployed on the live site.
+- Earlier live drift checks on `2026-05-31 18:42 PT`, `2026-05-31 20:12 PT`, and `2026-05-31 21:36 PT` returned `DRIFT` before the pushed source caught up.
 - Commit `9504118` shipped the analyzer transparency patch to `main` on `2026-05-31 21:36 PT`.
-- Post-push live verification passed after GitHub Pages caught up: `./scripts/verify-live-analyzer.sh` returned `PASS` for all expected LP/USD and excluded-item markers.
+- Follow-up commit `7ca9fa7` recorded the live analyzer verifier and deployment handoff updates.
+- Post-push live verification passed after GitHub Pages caught up: `./scripts/verify-live-analyzer.sh` returned `PASS` for all expected LP/USD and excluded-item markers on `2026-05-31 21:48 PT`.
 - Current local branch is `main`.
 - Current git remote is the `ArtemisHunts/sage-agent-demo` GitHub repo.
 - `demo/analyzer.html` has been patched locally to:
@@ -58,14 +58,14 @@ This repo contains the live site source for `https://ArtemisHunts.github.io/sage
 - New LP strings and excluded-item markers are present in source.
 - The excluded-items UI now also includes a plain-language `What unlocks ranking` explainer for `INK`, `IC3A`, and `IC3B`.
 - The excluded-items table now also includes `Source Basis` so users can see which note grounds each currently known fact set.
-- The current live site still shows the older LP copy, so deployment has not happened yet.
-- As of the May 31, 2026 5:59 PM PT heartbeat, a fresh live probe still returned none of the expected analyzer markers (`Tracked But Excluded`, `LP/USD`, `Code`, `Why Excluded`, `Known Data`, `Source Basis`, `Missing Economics`, `Next Required Input`, `Modeled-item scope only`, `What unlocks ranking`), so the public GitHub Pages analyzer is still behind local source.
-- As of the May 31, 2026 6:42 PM PT heartbeat, a follow-up live probe still returned `DRIFT`, confirming the public GitHub Pages analyzer remains behind local source even after the earlier handoff note.
-- As of the May 31, 2026 8:12 PM PT heartbeat, the shared repo verifier still printed every expected marker as `MISSING` and ended on `DRIFT`, so the public GitHub Pages analyzer is still behind local source on the latest check too.
+- As of the May 31, 2026 5:59 PM PT heartbeat, a fresh live probe still returned none of the expected analyzer markers (`Tracked But Excluded`, `LP/USD`, `Code`, `Why Excluded`, `Known Data`, `Source Basis`, `Missing Economics`, `Next Required Input`, `Modeled-item scope only`, `What unlocks ranking`), so the public GitHub Pages analyzer was still behind local source at that point.
+- As of the May 31, 2026 6:42 PM PT heartbeat, a follow-up live probe still returned `DRIFT`, confirming the public GitHub Pages analyzer remained behind local source after the earlier handoff note.
+- As of the May 31, 2026 8:12 PM PT heartbeat, the shared repo verifier still printed every expected marker as `MISSING` and ended on `DRIFT`, so the public GitHub Pages analyzer was still behind local source before the patch was shipped.
+- As of the May 31, 2026 9:48 PM PT heartbeat, the shared repo verifier returned `PASS` against the live GitHub Pages analyzer; all expected LP/USD and excluded-item markers are now present.
 
-## What Was Not Verified Before Commit
+## What Was Not Verified
 
-- Live post-deploy rendering, because GitHub Pages can lag the pushed source.
+- Pixel-level browser rendering after deploy; the live check verified expected HTML markers, not visual spacing.
 - GitHub Pages branch/source settings, because they are not stored in this repo and no local workflow/config file was found.
 
 ## Pre-Push Check
@@ -99,8 +99,7 @@ Interpretation:
 - `PASS` means the live analyzer has the patched excluded-item / LP-USD split markers plus the plain-language unlock-condition explainer.
 - `DRIFT` means the live page is still serving the older analyzer and no deploy has landed yet.
 - `FETCH_ERROR` means the probe could not fetch the target URL and should be treated as infrastructure/network failure, not product drift.
-- As of `2026-05-31 18:42 PT`, this probe still returned `DRIFT`.
-- As of `2026-05-31 20:12 PT`, this probe still returned `DRIFT`.
+- As of `2026-05-31 21:48 PT`, this probe returned `PASS` against `https://ArtemisHunts.github.io/sage-agent-demo/demo/analyzer.html`.
 
 If you need to point the probe at a different URL:
 
@@ -133,6 +132,6 @@ On the analyzer page, confirm the LP tab shows:
 - Compact source-of-truth note for those gaps: `notes/sage-excluded-items-gap-map.md`
 - The analyzer now exposes those gaps more explicitly in the UI under `Tracked But Excluded` with `Code`, `Why Excluded`, `Known Data`, `Source Basis`, `Missing Economics`, and `Next Required Input` columns, so post-deploy verification should confirm those exact table-header markers are visible too.
 - It also now states the exact unlock condition in plain language: `INK` needs grounded recipe/input-cost data, while `IC3A` / `IC3B` need grounded LP output before ranking becomes valid.
-- Re-run live browser verification after deploy
+- Re-run pixel-level live browser verification if visual spacing or responsive rendering becomes a concern
 - Keep the quick probe portable; use `grep`, not `rg`, unless the target environment is known to have ripgrep installed
 - Keep fetch failure distinct from analyzer marker drift so network/404 problems do not look like a stale deployment.
