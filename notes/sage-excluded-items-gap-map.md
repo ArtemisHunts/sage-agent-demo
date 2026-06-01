@@ -153,6 +153,15 @@ Interpretation:
 - Derived bounds before fee reconciliation: `100000 LP / 60h = 1666.67 LP/hour`; best-ask efficiency would be about `6779.66 LP/ATLAS`; midpoint of best bid/ask (`13.37 ATLAS`) would be about `7479.43 LP/ATLAS`.
 - Do not move `INK` into ranked analyzer output yet. The remaining blocker is the modeling policy and fee-unit confirmation, not discovery of the orderbook source.
 
+## Recommended INK Modeling Policy
+
+- Keep `INK` excluded from the current public ranked table until the analyzer can label it as a raw-resource market-cost estimate instead of a normal craft recipe.
+- If/when `INK` is added to a ranked view, use **best ask** as the default denominator because it reflects immediate acquisition cost and is conservative for LP efficiency.
+- Show best bid and midpoint only as context or secondary sensitivity values; do not use midpoint as the default rank basis because it can overstate executable efficiency.
+- Treat the `0.000035` fee as unresolved. Do not include it in the ranked denominator until the unit is confirmed as per craft, per unit, or something else.
+- Every market-derived `INK` value needs a timestamp and orderbook source note. Do not bake the June 1 09:43 PT snapshot into static analyzer math as if it were evergreen.
+- Product wording should say `Market-cost estimate` or `Best-ask basis`, not `recipe cost`, because the C4 export shows `Ink` as a raw/no-ingredient resource.
+
 ## Safe Modeling Rule
 
 Do not move any of these entries into ranked analyzer output until the missing economics are sourced and verified.
