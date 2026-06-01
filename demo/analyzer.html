@@ -3337,22 +3337,22 @@
                 duration: 60,
                 priceRange: [1.8, 2.2],
                 excludeFromRanking: true,
-                exclusionReason: "Market price and duration are extracted, but LP output is not grounded in the current notes.",
-                knownData: "60h · ATLAS price range 1.8-2.2",
-                sourceBasis: "sage-data-extraction.md",
-                missingModel: "Verified LP output",
-                unblockRequirement: "Add grounded LP reward/output data before ranking on LP efficiency."
+                exclusionReason: "Duration and market context are sourced, but LP output is not grounded in the current notes.",
+                knownData: "60h · extracted ATLAS range 1.8-2.2 · no ask · best-bid snapshot 1 ATLAS (Jun 1 11:00 PT)",
+                sourceBasis: "sage-data-extraction.md + sage-excluded-items-gap-map.md",
+                missingModel: "Verified LP output; market context alone cannot produce LP efficiency",
+                unblockRequirement: "Add grounded LP reward/output data before ranking on LP/hour, LP/ATLAS, or LP/USD."
             },
             "IC3B": {
                 name: "Contract - Starpath Cells",
                 duration: 60,
                 priceRange: [1.3, 1.7],
                 excludeFromRanking: true,
-                exclusionReason: "Market price and duration are extracted, but LP output is not grounded in the current notes.",
-                knownData: "60h · ATLAS price range 1.3-1.7",
-                sourceBasis: "sage-data-extraction.md",
-                missingModel: "Verified LP output",
-                unblockRequirement: "Add grounded LP reward/output data before ranking on LP efficiency."
+                exclusionReason: "Duration and market context are sourced, but LP output is not grounded in the current notes.",
+                knownData: "60h · extracted ATLAS range 1.3-1.7 · best-ask snapshot 2.2 ATLAS · best-bid snapshot 1.8 ATLAS (Jun 1 11:00 PT)",
+                sourceBasis: "sage-data-extraction.md + sage-excluded-items-gap-map.md",
+                missingModel: "Verified LP output; market context alone cannot produce LP efficiency",
+                unblockRequirement: "Add grounded LP reward/output data before ranking on LP/hour, LP/ATLAS, or LP/USD."
             }
         };
 

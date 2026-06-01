@@ -27,6 +27,8 @@ patterns=(
   "What unlocks ranking"
   "best-ask snapshot 14.75 ATLAS"
   "market-cost estimate lane"
+  "best-bid snapshot 1 ATLAS"
+  "best-ask snapshot 2.2 ATLAS"
   "Refresh ATLAS/USD"
   "CoinGecko simple price"
   "Cached fallback"
