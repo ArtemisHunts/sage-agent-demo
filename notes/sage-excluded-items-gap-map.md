@@ -91,10 +91,10 @@ What surfaced:
 
 What did not surface:
 - No grounded `INK` recipe/input basket.
-- No grounded `INK` source-cost path.
+- No grounded `INK` production-cost path.
 - No grounded `IC3A` / `IC3B` LP output.
 
-Conclusion: keep all three excluded from ranked LP-efficiency output until a source outside the current indexed notes provides the missing economics. The next step is source acquisition, not a calculator/modeling change.
+Conclusion: keep all three excluded from ranked LP-efficiency output. `INK` now has a sourced market-acquisition denominator but still needs policy and fee-unit handling before ranking; `IC3A` / `IC3B` still need source acquisition for LP output. The next step is source/policy tightening, not a calculator ranking change.
 
 ## External Source Trail
 
@@ -161,6 +161,13 @@ Interpretation:
 - Treat the `0.000035` fee as unresolved. Do not include it in the ranked denominator until the unit is confirmed as per craft, per unit, or something else.
 - Every market-derived `INK` value needs a timestamp and orderbook source note. Do not bake the June 1 09:43 PT snapshot into static analyzer math as if it were evergreen.
 - Product wording should say `Market-cost estimate` or `Best-ask basis`, not `recipe cost`, because the C4 export shows `Ink` as a raw/no-ingredient resource.
+
+## Fee Unit Boundary
+
+- Current analyzer implementation treats modeled-item `fee` values as a resource-level additive ATLAS fee for the craft/job and compounds nested crafted inputs by `1.05` inside `calculateResourceSupplyChain(...)`.
+- That implementation detail does not prove the source semantics of `INK`'s extracted `0.000035` fee.
+- For `INK`, do not fold the fee into the `14.75 ATLAS` market-cost denominator until an official/source note confirms whether it is per craft, per produced unit, or another fee unit.
+- If the analyzer later surfaces `INK` as a market-cost estimate, show any confirmed fee as a separate labeled component rather than silently blending it into the best-ask price.
 
 ## Safe Modeling Rule
 
