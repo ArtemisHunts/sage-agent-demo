@@ -43,4 +43,5 @@ if [[ "$missing" -eq 0 ]]; then
   echo "PASS"
 else
   echo "DRIFT"
+  exit 1
 fi

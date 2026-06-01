@@ -99,7 +99,7 @@ Quick probe:
 Interpretation:
 
 - `PASS` means the live analyzer has the patched excluded-item / LP-USD split markers plus the plain-language unlock-condition explainer.
-- `DRIFT` means the live page is still serving the older analyzer and no deploy has landed yet.
+- `DRIFT` means the live page is still serving the older analyzer and no deploy has landed yet; the verifier exits non-zero on this state.
 - `FETCH_ERROR` means the probe could not fetch the target URL and should be treated as infrastructure/network failure, not product drift.
 - As of `2026-05-31 21:48 PT`, this probe returned `PASS` against `https://ArtemisHunts.github.io/sage-agent-demo/demo/analyzer.html`.
 
