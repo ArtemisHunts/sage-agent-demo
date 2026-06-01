@@ -62,10 +62,10 @@ Explore the complete S.T.R.I.K.E. system:
 | Component | Description | Link |
 |-----------|-------------|------|
 | **🏠 Landing Page** | Project overview and vision | [View →](https://ArtemisHunts.github.io/sage-agent-demo/) |
-| **📊 Dashboard** | Fleet management interface | [View →](https://ArtemisHunts.github.io/sage-agent-demo/dashboard.html) |
-| **🔍 Fleet Analyzer** | Technical AI analysis | [View →](https://ArtemisHunts.github.io/sage-agent-demo/analyzer.html) |
-| **📜 Manifesto** | Vision for autonomous gaming | [View →](https://ArtemisHunts.github.io/sage-agent-demo/manifesto.html) |
-| **🗓️ Roadmap** | Development timeline | [View →](https://ArtemisHunts.github.io/sage-agent-demo/roadmap.html) |
+| **📊 Dashboard** | Fleet management interface | [View →](https://ArtemisHunts.github.io/sage-agent-demo/demo/dashboard.html) |
+| **🔍 Fleet Analyzer** | Technical AI analysis | [View →](https://ArtemisHunts.github.io/sage-agent-demo/demo/analyzer.html) |
+| **📜 Manifesto** | Vision for autonomous gaming | [View →](https://ArtemisHunts.github.io/sage-agent-demo/docs/manifesto.html) |
+| **🗓️ Roadmap** | Development timeline | [View →](https://ArtemisHunts.github.io/sage-agent-demo/docs/roadmap.html) |
 
 ---
 

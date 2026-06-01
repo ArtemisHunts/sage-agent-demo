@@ -340,7 +340,7 @@ node gaming-agent.js
 ## Next Steps
 
 ### 1. Try the Real Demo
-Visit our live analyzer: [ArtemisHunts.github.io/sage-agent-demo/](https://ArtemisHunts.github.io/sage-agent-demo/)
+Visit our live analyzer: [ArtemisHunts.github.io/sage-agent-demo/demo/analyzer.html](https://ArtemisHunts.github.io/sage-agent-demo/demo/analyzer.html)
 
 Enter a Star Atlas wallet address and see the account complexity in action.
 
@@ -374,7 +374,7 @@ Review the [Fleet Discovery Case Study](./CASE-STUDY-FLEET-DISCOVERY.md):
 
 - **GitHub**: [ArtemisHunts/sage-agent-demo](https://github.com/ArtemisHunts/sage-agent-demo)
 - **Documentation**: Complete guides and examples in this repository  
-- **Demo Site**: [Live fleet analyzer](https://ArtemisHunts.github.io/sage-agent-demo/)
+- **Demo Site**: [Live fleet analyzer](https://ArtemisHunts.github.io/sage-agent-demo/demo/analyzer.html)
 - **Star Atlas**: [Official game documentation](https://sage.staratlas.com/docs)
 
 ---

@@ -1827,7 +1827,7 @@
             <li><a href="analyzer.html" class="active">Analyzer</a></li>
             <li><a href="../docs/manifesto.html">Manifesto</a></li>
             <li><a href="../docs/roadmap.html">Roadmap</a></li>
-            <li><a href="https://github.com/artemis-sage-agent/sage-agent-demo" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/ArtemisHunts/sage-agent-demo" target="_blank" rel="noopener">GitHub</a></li>
             <li><a href="dashboard.html" class="nav-cta">Launch App</a></li>
         </ul>
     </nav>
@@ -2291,7 +2291,13 @@
                 <div id="optimizer-lp" class="optimizer-content">
                     <div class="optimizer-card">
                         <h3>LP Efficiency Calculator</h3>
-                        <p class="optimizer-desc">Calculate net LP per hour and LP per ATLAS for all craftable items, including supply chain complexity and compounding fees.</p>
+                        <p class="optimizer-desc">Calculate net LP per hour, LP per ATLAS, and LP per USD for all craftable items, including supply chain complexity and compounding fees.</p>
+                        <div class="optimizer-info-box">
+                            Current dataset caveat: this calculator only ranks fully modeled items. Extracted SAGE notes also include entries like INK and contract items such as IC3A / IC3B that are tracked below but excluded from rankings until their LP or cost model is grounded.
+                        </div>
+                        <div class="optimizer-info-box">
+                            Default ATLAS/USD reference is a round anchor at 0.00020. The extracted SAGE note examples span roughly 0.00007-0.00025, with the current average near 0.00014 and median near 0.00013. Refresh it manually if the market has moved.
+                        </div>
 
                         <div class="optimizer-form-grid">
                             <div class="optimizer-form-group">
@@ -2308,7 +2314,7 @@
                             </div>
                             <div class="optimizer-form-group">
                                 <label>ATLAS Price (USD):</label>
-                                <input type="number" class="optimizer-form-control" id="lpAtlasPrice" value="0.003" min="0" step="0.0001">
+                                <input type="number" class="optimizer-form-control" id="lpAtlasPrice" value="0.0002" min="0" step="0.00001">
                             </div>
                             <div class="optimizer-form-group">
                                 <label>Price Multiplier:</label>
@@ -3297,7 +3303,43 @@
             "FUEL": { name: "Fuel", duration: 1, points: 3, fee: 0.0000513, inputs: ["HCRB", "HYG"] },
             "AMMO": { name: "Ammunition", duration: 1, points: 3, fee: 0.0000622, inputs: ["IRON", "CARBON"] },
             "FOOD": { name: "Food", duration: 1, points: 6, fee: 0.00005425, inputs: ["BIOMASS"] },
-            "TOOL": { name: "Toolkit", duration: 2, points: 14, fee: 0.0000702, inputs: ["STEEL", "ELECTRO"] }
+            "TOOL": { name: "Toolkit", duration: 2, points: 14, fee: 0.0000702, inputs: ["STEEL", "ELECTRO"] },
+            "INK": {
+                name: "Ink",
+                duration: 60,
+                points: 100000,
+                fee: 0.000035,
+                excludeFromRanking: true,
+                exclusionReason: "LP and duration are extracted, but the recipe input cost path is not yet modeled.",
+                knownData: "100000 LP · 60h · fee 0.000035",
+                sourceBasis: "sage-mechanics-confirmed.md + sage-data-extraction.md",
+                missingModel: "Grounded recipe inputs and source costs",
+                unblockRequirement: "Add the verified input recipe plus ATLAS-denominated cost model."
+            },
+
+            // Contracts tracked from extracted notes, but not yet rankable
+            "IC3A": {
+                name: "Contract - Quantum Nodes",
+                duration: 60,
+                priceRange: [1.8, 2.2],
+                excludeFromRanking: true,
+                exclusionReason: "Market price and duration are extracted, but LP output is not grounded in the current notes.",
+                knownData: "60h · ATLAS price range 1.8-2.2",
+                sourceBasis: "sage-data-extraction.md",
+                missingModel: "Verified LP output",
+                unblockRequirement: "Add grounded LP reward/output data before ranking on LP efficiency."
+            },
+            "IC3B": {
+                name: "Contract - Starpath Cells",
+                duration: 60,
+                priceRange: [1.3, 1.7],
+                excludeFromRanking: true,
+                exclusionReason: "Market price and duration are extracted, but LP output is not grounded in the current notes.",
+                knownData: "60h · ATLAS price range 1.3-1.7",
+                sourceBasis: "sage-data-extraction.md",
+                missingModel: "Verified LP output",
+                unblockRequirement: "Add grounded LP reward/output data before ranking on LP efficiency."
+            }
         };
 
         // Global optimizer state
@@ -5403,25 +5445,44 @@
             results.style.display = 'block';
             
             const lpEfficiencies = [];
+            const excludedItems = [];
             
             Object.entries(SAGE_RESOURCES).forEach(([code, resource]) => {
+                if (resource.excludeFromRanking) {
+                    excludedItems.push({
+                        name: resource.name,
+                        code,
+                        reason: resource.exclusionReason || 'Not fully modeled yet.',
+                        knownData: resource.knownData || 'No grounded extracted facts attached yet.',
+                        sourceBasis: resource.sourceBasis || 'Not recorded',
+                        missingModel: resource.missingModel || 'Missing grounded economics',
+                        unblockRequirement: resource.unblockRequirement || 'Add the missing economic inputs before ranking.'
+                    });
+                    return;
+                }
+
                 if (!resource.points) return; // Skip raw materials
                 
                 const supplyChain = calculateResourceSupplyChain(code, crew);
                 const totalTime = supplyChain.totalTime + miningTravel + starbaseTravel;
-                const totalCost = supplyChain.totalCost * atlasPrice * priceMultiplier;
-                const totalFees = supplyChain.totalFees * atlasPrice;
+                const totalCostAtlas = supplyChain.totalCost * priceMultiplier;
+                const totalFeesAtlas = supplyChain.totalFees;
+                const totalCostUsd = totalCostAtlas * atlasPrice;
+                const totalFeesUsd = totalFeesAtlas * atlasPrice;
                 
                 const lpPerHour = resource.points / totalTime;
-                const lpPerAtlas = resource.points / (totalCost + totalFees);
+                const lpPerAtlas = resource.points / (totalCostAtlas + totalFeesAtlas);
+                const lpPerUsd = resource.points / (totalCostUsd + totalFeesUsd);
                 
                 lpEfficiencies.push({
                     name: resource.name,
                     points: resource.points,
                     totalTime: totalTime.toFixed(2),
-                    totalCost: (totalCost + totalFees).toFixed(6),
+                    totalCostAtlas: (totalCostAtlas + totalFeesAtlas).toFixed(6),
+                    totalCostUsd: (totalCostUsd + totalFeesUsd).toFixed(6),
                     lpPerHour: lpPerHour.toFixed(2),
                     lpPerAtlas: lpPerAtlas.toFixed(0),
+                    lpPerUsd: lpPerUsd.toFixed(0),
                     efficiency: lpPerHour * lpPerAtlas // Combined metric
                 });
             });
@@ -5432,6 +5493,8 @@
             let html = `
                 <h3>LP Efficiency Rankings</h3>
                 <div class="optimizer-info-box">Ranked by combined LP/hour × LP/ATLAS efficiency score. Higher is better.</div>
+                <div class="optimizer-info-box">ATLAS price only affects the USD conversions below. It should not change ATLAS-denominated rankings by itself.</div>
+                <div class="optimizer-info-box">Modeled-item scope only: rankings below exclude extracted-but-incomplete entries like INK and the contract items IC3A / IC3B until their LP or cost model is grounded.</div>
                 <table class="optimizer-table">
                     <thead>
                         <tr>
@@ -5439,8 +5502,10 @@
                             <th>LP Points</th>
                             <th>Total Time (h)</th>
                             <th>Total Cost (ATLAS)</th>
+                            <th>Total Cost (USD)</th>
                             <th>LP/Hour</th>
                             <th>LP/ATLAS</th>
+                            <th>LP/USD</th>
                             <th>Efficiency Score</th>
                         </tr>
                     </thead>
@@ -5453,15 +5518,51 @@
                         <td>${item.name}</td>
                         <td>${item.points}</td>
                         <td>${item.totalTime}</td>
-                        <td>${item.totalCost}</td>
+                        <td>${item.totalCostAtlas}</td>
+                        <td>${item.totalCostUsd}</td>
                         <td>${item.lpPerHour}</td>
                         <td>${item.lpPerAtlas}</td>
+                        <td>${item.lpPerUsd}</td>
                         <td>${item.efficiency.toFixed(0)}</td>
                     </tr>
                 `;
             });
             
             html += '</tbody></table>';
+
+            if (excludedItems.length > 0) {
+                html += `
+                    <h3>Tracked But Excluded</h3>
+                    <div class="optimizer-info-box">These entries are tracked from extracted SAGE notes, but the calculator leaves them out of rankings until the missing economics are verified.</div>
+                    <div class="optimizer-info-box">What unlocks ranking: <strong>INK</strong> still needs a grounded recipe/input basket plus source costs. <strong>IC3A</strong> and <strong>IC3B</strong> still need grounded LP output before LP/hour, LP/ATLAS, or LP/USD can be treated as real.</div>
+                    <table class="optimizer-table">
+                        <thead>
+                            <tr>
+                                <th>Entry</th>
+                                <th>Code</th>
+                                <th>Why Excluded</th>
+                                <th>Known Data</th>
+                                <th>Source Basis</th>
+                                <th>Missing Economics</th>
+                                <th>Next Required Input</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${excludedItems.map(item => `
+                                <tr>
+                                    <td>${item.name}</td>
+                                    <td><code>${item.code}</code></td>
+                                    <td>${item.reason}</td>
+                                    <td>${item.knownData}</td>
+                                    <td><code>${item.sourceBasis || "Not recorded"}</code></td>
+                                    <td>${item.missingModel}</td>
+                                    <td>${item.unblockRequirement}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
             results.innerHTML = html;
         }
 
@@ -5770,27 +5871,46 @@
                         const priceMultiplier = 1.2; // Standard markup
                         
                         const lpEfficiencies = [];
+                        const excludedItems = [];
                         
                         // Calculate efficiency for all craftable resources
                         Object.entries(SAGE_RESOURCES).forEach(([code, resource]) => {
+                            if (resource.excludeFromRanking) {
+                                excludedItems.push({
+                                    resource: resource.name,
+                                    code: code,
+                                    reason: resource.exclusionReason || "Not fully modeled yet.",
+                                    knownData: resource.knownData || "No grounded extracted facts attached yet.",
+                                    sourceBasis: resource.sourceBasis || "Not recorded",
+                                    missingModel: resource.missingModel || "Missing grounded economics",
+                                    unblockRequirement: resource.unblockRequirement || "Add the missing economic inputs before ranking."
+                                });
+                                return;
+                            }
+
                             if (!resource.points) return; // Skip raw materials
                             
                             const supplyChain = calculateResourceSupplyChain(code, crew);
                             const totalTime = supplyChain.totalTime + travelTime;
-                            const totalCost = supplyChain.totalCost * atlasPrice * priceMultiplier;
-                            const totalFees = supplyChain.totalFees * atlasPrice;
+                            const totalCostAtlas = supplyChain.totalCost * priceMultiplier;
+                            const totalFeesAtlas = supplyChain.totalFees;
+                            const totalCostUsd = totalCostAtlas * atlasPrice;
+                            const totalFeesUsd = totalFeesAtlas * atlasPrice;
                             
                             const lpPerHour = resource.points / totalTime;
-                            const lpPerAtlas = resource.points / (totalCost + totalFees);
+                            const lpPerAtlas = resource.points / (totalCostAtlas + totalFeesAtlas);
+                            const lpPerUsd = resource.points / (totalCostUsd + totalFeesUsd);
                             
                             lpEfficiencies.push({
                                 resource: resource.name,
                                 code: code,
                                 points: resource.points,
                                 totalTime: Math.round(totalTime * 100) / 100,
-                                totalCost: Math.round((totalCost + totalFees) * 1000000) / 1000000,
+                                totalCostAtlas: Math.round((totalCostAtlas + totalFeesAtlas) * 1000000) / 1000000,
+                                totalCostUsd: Math.round((totalCostUsd + totalFeesUsd) * 1000000) / 1000000,
                                 lpPerHour: Math.round(lpPerHour * 100) / 100,
                                 lpPerAtlas: Math.round(lpPerAtlas),
+                                lpPerUsd: Math.round(lpPerUsd),
                                 efficiency: Math.round(lpPerHour * lpPerAtlas)
                             });
                         });
@@ -5804,7 +5924,9 @@
                                 atlasPrice: atlasPrice,
                                 travelTime: travelTime
                             },
+                            modeledItemScope: "Only fully modeled items are ranked. Extracted-but-incomplete entries are returned separately in excludedItems.",
                             totalResources: lpEfficiencies.length,
+                            excludedItems: excludedItems,
                             topEfficiencyRanking: lpEfficiencies.slice(0, 20), // Top 20
                             fullRanking: lpEfficiencies
                         };
@@ -6235,7 +6357,7 @@
                     <ul>
                         <li><a href="../docs/manifesto.html">Manifesto</a></li>
                         <li><a href="../docs/roadmap.html">Roadmap</a></li>
-                        <li><a href="https://github.com/artemis-sage-agent/sage-agent-demo" target="_blank" rel="noopener">GitHub</a></li>
+                        <li><a href="https://github.com/ArtemisHunts/sage-agent-demo" target="_blank" rel="noopener">GitHub</a></li>
                     </ul>
                 </div>
             </div>
