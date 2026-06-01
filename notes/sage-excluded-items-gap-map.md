@@ -22,9 +22,11 @@ The analyzer now surfaces `INK`, `IC3A`, and `IC3B` explicitly instead of silent
 - Code: `INK`
 - Entry: `Ink`
 - Known data: `100000 LP`, `60h`, fee `0.000035`
+- Marketplace slug / mint handle: `inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh`
 - Source basis: `sage-mechanics-confirmed.md` + `sage-data-extraction.md` + SAGE Editor Suite C4 exports:
   - `https://ses.staratlas.com/SAGE%20Editor%20Suite/C4%20Tools/data/resources.json`
   - `https://ses.staratlas.com/SAGE%20Editor%20Suite/C4%20Tools/data/recipes.json`
+  - `https://play.staratlas.com/market/inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh/`
 - Why excluded: LP and duration are extracted, but the source-cost denominator is not yet modeled
 - Missing economics: grounded raw-resource acquisition/opportunity cost
 - Next required input: decide whether raw/no-ingredient C4 resources should be ranked via market acquisition cost, production opportunity cost, or kept excluded
@@ -103,6 +105,24 @@ Interpretation:
 - The analyzer still cannot safely rank `INK` because the LP facts need a denominator. Use a market-cost or production-cost policy only after that basis is explicitly chosen and sourced.
 - `IC3A` / `IC3B` remain unresolved; no LP output was found in the checked C4 exports.
 
+Follow-up marketplace source pass: June 1, 2026 09:37 PT heartbeat.
+
+Sources checked:
+- Web search result for official Star Atlas marketplace `Ink` page.
+- Direct fetch of `https://play.staratlas.com/market/inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh/`.
+- Headed `openclaw` browser load of the same official marketplace page.
+- Third-party `sa-data-api` source code for a possible on-chain market-price query pattern.
+
+What surfaced:
+- Official marketplace route for `Ink`: `https://play.staratlas.com/market/inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh/`.
+- The slug itself gives the likely marketplace mint handle: `inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh`.
+- A headed browser load reached title `Star Atlas - Ink`, but the snapshot/screenshot path timed out, matching the existing browser-timeout pattern; no visible price was captured.
+- `222TheMaster222/sa-data-api` demonstrates a plausible on-chain denominator path using `@staratlas/factory` `GmClientService.getOpenOrdersForCurrency(...)`, `ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx`, and marketplace program `traderDnaR5w6Tcoi3NFm53i48FTDNbGjBSZwWXDRrg`.
+
+Interpretation:
+- The next non-UI path should query Galactic Marketplace open orders for mint `inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh` in ATLAS and use best ask / best bid / midpoint as a timestamped acquisition-cost denominator.
+- Do not use the marketplace page title alone as price evidence; it only grounds identity/mint routing.
+
 ## Safe Modeling Rule
 
 Do not move any of these entries into ranked analyzer output until the missing economics are sourced and verified.
@@ -124,7 +144,7 @@ That means:
 
 For `INK`, capture these fields before any ranked output change:
 - source-cost policy for a raw/no-ingredient C4 resource
-- ATLAS-denominated acquisition or opportunity cost for `Ink`, with timestamp/source
+- ATLAS-denominated acquisition or opportunity cost for `Ink`, with timestamp/source; first candidate is Galactic Marketplace open orders for mint `inkTd6G5fWSLhmTgY7tTkCR2a75ACrgM86e7HF6DkHh`
 - whether the `0.000035` fee is per craft, per unit, or another fee unit
 - computed total input cost and resulting `LP/ATLAS`
 - optional USD conversion only after the ATLAS denominator is grounded
