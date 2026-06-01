@@ -45,6 +45,22 @@ node scripts/query-atlas-orderbook.js INK https://api.mainnet-beta.solana.com
 
 Public RPCs can rate-limit `getProgramAccounts`; append a private or paid endpoint when taking a publishable snapshot.
 
+## Orderbook Probe Verification
+
+```bash
+./scripts/verify-orderbook-probes.sh
+```
+
+Runs non-network syntax and CLI-shape checks for the orderbook probes. This is the safe default for CI or heartbeat use because it avoids public-RPC flakiness.
+
+To also run live RPC smoke checks for `INK`, `IC3A`, and `IC3B`:
+
+```bash
+LIVE_ORDERBOOK=1 ./scripts/verify-orderbook-probes.sh
+```
+
+Use the live mode only when you need a fresh source snapshot and can tolerate public-RPC rate limits.
+
 ## Modeling Guardrail
 
 Orderbook data is market context, not LP efficiency by itself.
